@@ -1,21 +1,41 @@
 import { useState, useEffect } from 'react'
 
 function App() {
+  // Set your move end date here (YYYY-MM-DD)
+  const targetDate = new Date('2025-09-05T23:59:59')
+  // Optionally, set your move start date (or use the first day the site went down)
+  const startDate = new Date('2024-07-24T00:00:00')
+
   const [time, setTime] = useState(new Date())
   const [isVisible, setIsVisible] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     // Animate in the content
     const timer = setTimeout(() => setIsVisible(true), 100)
     
-    // Update time every second
-    const interval = setInterval(() => setTime(new Date()), 1000)
+    // Update time and progress every second
+    const interval = setInterval(() => {
+      const now = new Date()
+      setTime(now)
+      setProgress(getProgress(now))
+    }, 1000)
+    setProgress(getProgress(new Date()))
     
     return () => {
       clearTimeout(timer)
       clearInterval(interval)
     }
   }, [])
+
+  function getProgress(now) {
+    const total = targetDate - startDate
+    const elapsed = now - startDate
+    let percent = (elapsed / total) * 100
+    if (percent < 0) percent = 0
+    if (percent > 100) percent = 100
+    return percent
+  }
 
   const formatTime = (date) => {
     return date.toLocaleTimeString('en-US', {
@@ -95,9 +115,11 @@ function App() {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="w-full bg-white/10 rounded-full h-2 mb-4 backdrop-blur-sm">
-              <div className="bg-white/40 h-2 rounded-full animate-pulse glow-effect" style={{width: '50%'}}></div>
+              <div className="bg-white/40 h-2 rounded-full animate-pulse glow-effect" style={{width: `${progress}%`}}></div>
             </div>
-            <p className="text-white text-sm" style={{color: '#ffffff'}}>Move expected to be finished by 9/3/2025</p>
+            <p className="text-white text-sm" style={{color: '#ffffff'}}>
+              Move progress: {progress.toFixed(1)}% complete (until 9/5/2025)
+            </p>
           </div>
 
           {/* Contact Info */}
@@ -105,8 +127,8 @@ function App() {
             <p className="text-white" style={{color: '#ffffff'}}>
               Need immediate assistance? 
               <br />
-              Contact me at {' '} <a href="mailto:Chuck@chuck-builds.com" className="text-white font-semibold hover:underline hover:text-white/80 transition-colors" style={{color: '#ffffff'}}>
-                 Chuck@chuck-builds.com
+              Contact me at {' '}<a href="mailto:Chuck@chuck-builds.com" className="text-white font-semibold hover:underline hover:text-white/80 transition-colors" style={{color: '#ffffff'}}>
+                Chuck@chuck-builds.com
               </a> or on <a href="https://discord.gg/wQuwSM8tdq" className="text-white font-semibold hover:underline hover:text-white/80 transition-colors" style={{color: '#ffffff'}}>
                 Discord
               </a>.
